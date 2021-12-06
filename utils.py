@@ -20,17 +20,19 @@ def calculate_max_descendants(tree_height):
 
 
 # TODO: add unbounded option
-def add_person(root, person):
+def add_person(root, person, max_tree_height):
+    if len(root.descendants) > calculate_max_descendants(max_tree_height):
+        return False
     if len(root.children) < 2:
-        # if root.biased and person.kind == KIND_C:
-        #     return False
-        # else:
+        if root.biased and person.kind == KIND_C:
+            return False
+        else:
             root.children += (person,)
             return True
     elif len(root.children[0].descendants) < len(root.children[1].descendants):
-        return add_person(root.children[0], person)
+        return True if add_person(root.children[0], person, max_tree_height - 1) else add_person(root.children[1], person, max_tree_height - 1)
     else:
-        return add_person(root.children[1], person)
+        return True if add_person(root.children[1], person, max_tree_height - 1) else add_person(root.children[0], person, max_tree_height - 1)
 
 
 def delete_conditioned(node, condition, comparator=lambda node1, node2: max(node1.kind, node2.kind)):
@@ -43,12 +45,21 @@ def print_tree(root):
         print(treestr.ljust(20), node.age)
 
 
-def add_stat(root, stat):
+def add_tree_stat(root, stat):
     for _, _, node in RenderTree(root):
         if node.kind in stat:
             stat[node.kind] = stat[node.kind] + 1
         else:
             stat[node.kind] = 1
+
+
+def add_array_stat(array, stat):
+    for person in array:
+        if person.kind in stat:
+            stat[person.kind] = stat[person.kind] + 1
+        else:
+            stat[person.kind] = 1
+
 
 def size(root):
     return len(root.descendants) + 1
