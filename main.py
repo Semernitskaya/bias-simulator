@@ -1,15 +1,16 @@
 import random
+from functools import reduce
 
 from anytree import RenderTree
 
 from utils import Person, add_person, print_tree, add_tree_stat, KIND_A, KIND_C, calculate_max_descendants, \
-    add_array_stat
+    add_array_stat, Stat
 
-generation_size = 1
-biased_percent = 50
+generation_size = 10
+biased_percent = 80
 retirement_age = 3
-max_tree_height = 6
-generations_count = 200
+max_tree_height = 7
+generations_count = 300
 max_descendants = calculate_max_descendants(max_tree_height)
 
 pool = []
@@ -34,7 +35,7 @@ for current_generation in range(generations_count):
         for company in companies:
             for pre, fill, node in RenderTree(company):
                 node.age += 1
-
+        # TODO: delete retired
         # delete retired
         # for company in companies:
         #     delete_conditioned(company)
@@ -43,6 +44,7 @@ for current_generation in range(generations_count):
         for i in range(generation_size):
             pool.append(next_person())
 
+        # TODO: performance ???
         temp_companies = list(companies)
         smallest_company = min(temp_companies, key=lambda c: len(c.descendants))
         while len(smallest_company.descendants) < max_descendants and len(pool) > 0:
@@ -60,15 +62,15 @@ for current_generation in range(generations_count):
 
 
 print(f"Generation {current_generation} ================================")
-company_stat = {KIND_A: 0, KIND_C: 0}
+company_stat = {KIND_A: Stat(), KIND_C: Stat()}
 for company in companies:
     print_tree(company)
-    add_tree_stat(company, company_stat)
+    add_tree_stat(company, company_stat, max_tree_height)
 
-pool_stat = {KIND_A: 0, KIND_C: 0}
+pool_stat = {KIND_A: Stat(), KIND_C: Stat()}
 add_array_stat(pool, pool_stat)
 
-print(f"Max descendants: {max_descendants}")
-print(f"Actual descendants: {len(companies[0].descendants)}")
+print(f"Max descendants: {max_descendants * generation_size}")
+print(f"Actual descendants: {reduce(lambda res, c: res + len(c.descendants), companies, 0)}")
 print(f"No company: A: {pool_stat[KIND_A]}, C: {pool_stat[KIND_C]}")
 print(f"In company: A: {company_stat[KIND_A]}, C: {company_stat[KIND_C]}")

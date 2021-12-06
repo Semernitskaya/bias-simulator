@@ -1,6 +1,5 @@
 from anytree import NodeMixin, RenderTree
 
-
 KIND_A = "A"
 KIND_C = "C"
 
@@ -45,20 +44,30 @@ def print_tree(root):
         print(treestr.ljust(20), node.age)
 
 
-def add_tree_stat(root, stat):
+class Stat:
+    def __init__(self, count=0, weight=0):
+        self.count = count
+        self.weight = weight
+
+    def __str__(self) -> str:
+        return f"({self.count}, {self.weight})"
+
+
+def add_tree_stat(root, stat, max_tree_height):
     for _, _, node in RenderTree(root):
         if node.kind in stat:
-            stat[node.kind] = stat[node.kind] + 1
+            stat[node.kind].count += 1
+            stat[node.kind].weight += max_tree_height - node.depth + 1
         else:
-            stat[node.kind] = 1
+            stat[node.kind] = Stat(1,  max_tree_height - node.depth + 1)
 
 
 def add_array_stat(array, stat):
     for person in array:
         if person.kind in stat:
-            stat[person.kind] = stat[person.kind] + 1
+            stat[person.kind].count += 1
         else:
-            stat[person.kind] = 1
+            stat[person.kind] = Stat(1, 0)
 
 
 def size(root):
