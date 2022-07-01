@@ -83,6 +83,7 @@ for current_generation in range(generations_count):
             treestr = u"%s%s" % (pre, node.kind)
             print(treestr.ljust(8), node.age)
 
+
 print("No company: " + str(len(pool)))
 
 
